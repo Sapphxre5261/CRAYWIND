@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@theme {
+  --animate-scene-arrive: scene-arrive 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-scene-enter: scene-enter 1s 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  @keyframes scene-arrive {
+    from { opacity: 0; transform: translateY(14px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes scene-enter {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+@theme inline {
+  --color-ink: #ededee;
+  --color-mute: #a3a3ac;
+  --color-faint: #777780;
+  --color-line: rgb(255 255 255 / 0.09);
+  --color-line-strong: rgb(255 255 255 / 0.2);
+  --color-accent: #d13b45;
+  --color-founder: #f43f5e;
+  --color-leader: #f59e0b;
+  --color-lastname: #06b6d4;
+  --color-member: #a855f7;
+
+  --font-sans: var(--font-chakra), "Prompt", sans-serif;
+  --font-display: var(--font-orbitron), "Bebas Neue", sans-serif;
+  --font-mono: var(--font-jbmono), ui-monospace, monospace;
+}
+
+body {
+  background-color: #050505;
+  font-weight: 400;
+}
+
+:focus-visible {
+  outline: 2px solid #d13b45;
+  outline-offset: 4px;
+}
+
+::selection {
+  background: var(--color-ink);
+  color: #0a0a0a;
+}
+
+.vignette {
+  background: radial-gradient(120% 90% at 50% 35%, transparent 50%, rgb(0 0 0 / 0.7) 100%);
+}
+
+/* glass card used across pages */
+.lux-card {
+  border: 1px solid var(--color-line);
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 0.05), transparent 55%),
+    rgb(14 14 17 / 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition:
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.3s;
+}

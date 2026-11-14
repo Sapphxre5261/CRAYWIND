@@ -1,0 +1,85 @@
+import type { Member } from "@/data/members";
+
+interface SupaCfg {
+  url: string;
+  key: string;
+  table: string;
+}
+
+const SETTINGS_TABLE = "settings";
+
+function endpoint(cfg: SupaCfg, table = cfg.table) {
+  if (!cfg.url || !cfg.key) {
+    throw new Error(
+      "Supabase config missing — กรอก url + service_role_key ใน config.ini หรือ env SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY"
+    );
+  }
+  return `${cfg.url.replace(/\/$/, "")}/rest/v1/${table}`;
+}
+
+function headers(cfg: SupaCfg, extra: Record<string, string> = {}) {
+  return {
+    apikey: cfg.key,
+    Authorization: `Bearer ${cfg.key}`,
+    "Content-Type": "application/json",
+    ...extra,
+  };
+}
+
+export async function getMembers(cfg: SupaCfg): Promise<Member[]> {
+  const res = await fetch(`${endpoint(cfg)}?select=name,rank,facebook&order=pos.asc`, {
+    headers: headers(cfg),
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`Supabase read failed: ${res.status} ${await res.text()}`);
+  const rows = (await res.json()) as Member[];
+  return rows.map((r) => ({ name: r.name, rank: r.rank, facebook: r.facebook }));
+}
+
+export async function saveMembers(cfg: SupaCfg, members: Member[]) {
+  // wipe + re-insert preserves the editor's ordering via pos
+  const del = await fetch(`${endpoint(cfg)}?id=gte.0`, {
+    method: "DELETE",
+    headers: headers(cfg),
+  });
+  if (!del.ok) throw new Error(`Supabase delete failed: ${del.status} ${await del.text()}`);
+
+  if (members.length === 0) return;
+  const rows = members.map((m, i) => ({
+    name: m.name.trim(),
+    rank: m.rank,
+    facebook: m.facebook ?? "",
+    pos: i,
+  }));
+  const ins = await fetch(endpoint(cfg), {
+    method: "POST",
+    headers: headers(cfg, { Prefer: "return=minimal" }),
+    body: JSON.stringify(rows),
+  });
+  if (!ins.ok) throw new Error(`Supabase insert failed: ${ins.status} ${await ins.text()}`);
+}
+
+export async function getSetting(cfg: SupaCfg, key: string): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `${endpoint(cfg, SETTINGS_TABLE)}?key=eq.${encodeURIComponent(key)}&select=value`,
+      { headers: headers(cfg), cache: "no-store" }
+    );
+    if (!res.ok) return null;
+    const rows = (await res.json()) as { value: string }[];
+    return rows[0]?.value ?? null;
+  } catch {
+    return null; // settings table อาจยังไม่มี — ถือว่าไม่มีค่า
+  }
+}
+
+export async function setSetting(cfg: SupaCfg, key: string, value: string) {
+  const res = await fetch(endpoint(cfg, SETTINGS_TABLE), {
+    method: "POST",
+    headers: headers(cfg, {
+      Prefer: "resolution=merge-duplicates,return=minimal",
+    }),
+    body: JSON.stringify({ key, value }),
+  });
+  if (!res.ok) throw new Error(`Supabase setSetting failed: ${res.status} ${await res.text()}`);
+}
