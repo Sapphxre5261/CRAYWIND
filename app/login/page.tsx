@@ -18,7 +18,7 @@ export default async function LoginPage() {
         <div className="relative hidden flex-col justify-between overflow-hidden border-r border-white/10 bg-[url('/Craywind_X3UF.png')] bg-cover bg-center p-9 md:flex">
           <div className="absolute inset-0 bg-linear-to-b from-black/40 via-black/10 to-black/90" />
           <span className="relative font-display text-sm tracking-[0.2em]">CRAYWIND<span className="text-accent">.</span></span>
-          <div className="relative"><div className="mb-5 h-0.5 w-10 bg-accent" /><p className="font-display text-2xl font-bold leading-relaxed">BEHIND<br />THE NAME.</p><p className="mt-4 font-mono text-[9px] tracking-widest text-mute">UNFAIR SEMIPRO</p></div>
+          <div className="relative"><div className="mb-5 h-0.5 w-10 bg-accent" /><p className="font-display text-2xl font-bold leading-relaxed">BEHIND<br />THE NAME.</p><p className="mt-4 font-mono text-[9px] tracking-widest text-mute">WINTERFELL</p></div>
         </div>
         <div className="relative px-7 py-10 sm:p-12">
           <span className="absolute top-0 right-0 h-1 w-16 bg-accent" />

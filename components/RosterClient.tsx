@@ -44,7 +44,7 @@ export default function RosterClient({ members }: { members: Member[] }) {
           <Link href="/" className="group flex shrink-0 flex-col items-center">
             <img src="/og-avatar.png" alt="" width={54} height={54} className="mb-3 object-contain drop-shadow-[0_2px_10px_#d4b87730] transition-transform duration-300 group-hover:scale-105 motion-reduce:transform-none" />
             <span className="bg-linear-to-b from-white to-[#a8a8b0] bg-clip-text font-display text-base font-bold tracking-[0.22em] text-transparent sm:text-xl">CRAYWIND</span>
-            <span className="mt-2 font-mono text-[7px] tracking-[0.4em] text-[#cbb680]/80">UNFAIR SEMIPRO</span>
+            <span className="mt-2 font-mono text-[7px] tracking-[0.4em] text-[#cbb680]/80">WINTERFELL</span>
           </Link>
           <span aria-hidden className="h-px flex-1 bg-linear-to-l from-transparent to-[#d8c18c]/35" />
         </div>
@@ -75,7 +75,7 @@ export default function RosterClient({ members }: { members: Member[] }) {
               ONE NAME.<br /><span className="bg-linear-to-b from-white via-[#c4c5c8] to-[#626368] bg-clip-text text-transparent">ONE FAMILY.</span>
             </h1>
             <p className="mt-6 text-sm text-[#b4b4b9]">ทุกชื่อ คือส่วนหนึ่งของ CRAYWIND</p>
-            <span className="absolute right-6 bottom-5 font-mono text-[9px] tracking-[0.25em] text-white/40 sm:right-10">UNFAIR SEMIPRO / CRAYWIND</span>
+            <span className="absolute right-6 bottom-5 font-mono text-[9px] tracking-[0.25em] text-white/40 sm:right-10">WINTERFELL / CRAYWIND</span>
           </div>
           <span aria-hidden className="absolute top-0 left-0 h-1 w-20 bg-accent" />
         </header>
@@ -161,7 +161,7 @@ export default function RosterClient({ members }: { members: Member[] }) {
             </nav>
             <div className="flex w-full flex-wrap items-center justify-between gap-3 border-t border-white/[0.07] pt-5 font-mono text-[8px] tracking-[0.2em] text-faint max-sm:justify-center">
               <span>© {new Date().getFullYear()} CRAYWIND — ALL RIGHTS RESERVED</span>
-              <span className="hidden sm:inline">UNFAIR SEMIPRO</span>
+              <span className="hidden sm:inline">WINTERFELL</span>
             </div>
           </div>
         </footer>

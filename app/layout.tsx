@@ -22,7 +22,7 @@ const jbMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CRAYWIND — UNFAIR SEMIPRO",
+  title: "CRAYWIND — WINTERFELL",
   icons: { icon: "/og-avatar.png" },
 };
 

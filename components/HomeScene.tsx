@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function HomeScene() {
   return (
     <main className="relative isolate min-h-[480px] flex-1 overflow-hidden bg-[#070709] [perspective:1200px]">
-      <h1 className="sr-only">CRAYWIND — Unfair Semipro</h1>
+      <h1 className="sr-only">CRAYWIND — Winterfell</h1>
 
       {/* Ambient light stays behind the artwork, so the mobile crop never cuts the name. */}
       <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_42%,#313136_0%,#121215_40%,#070709_72%)]" />
