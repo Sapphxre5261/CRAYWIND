@@ -34,6 +34,7 @@ export default function DashboardClient({
     setList((l) => l.map((m, j) => (j === i ? { ...m, ...patch } : m)));
 
   const remove = async (i: number) => {
+    if (saving) return; // กัน PUT ชนกัน — request ที่ลงทีหลังจะเขียนทับ
     const prev = list;
     const next = prev.filter((_, j) => j !== i);
     setList(next);
@@ -67,6 +68,7 @@ export default function DashboardClient({
   };
 
   const add = async (member: Member) => {
+    if (saving) return;
     const prev = list;
     setList([...prev, member]);
     if (!(await persist([...prev, member], `เพิ่ม ${member.name} แล้ว`))) {

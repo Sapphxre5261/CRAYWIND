@@ -17,15 +17,16 @@ export async function PUT(req: Request) {
   }
   const members: Member[] = [];
   for (const m of body) {
+    const fb = typeof m?.facebook === "string" ? m.facebook.trim() : "";
     if (
       typeof m?.name !== "string" ||
       !m.name.trim() ||
       !RANK_ORDER.includes(m?.rank) ||
-      typeof m?.facebook !== "string"
+      (fb !== "" && !/^https?:\/\//i.test(fb)) // กัน javascript:/data: URL ไปโผล่ใน href หน้า public
     ) {
       return NextResponse.json({ error: "invalid member" }, { status: 400 });
     }
-    members.push({ name: m.name.trim(), rank: m.rank, facebook: m.facebook.trim() });
+    members.push({ name: m.name.trim(), rank: m.rank, facebook: fb });
   }
   await saveMembers(members);
   return NextResponse.json({ ok: true, count: members.length });

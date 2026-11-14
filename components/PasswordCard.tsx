@@ -11,21 +11,26 @@ export default function PasswordCard() {
   const changePass = async () => {
     setBusy(true);
     setNotice(null);
-    const res = await fetch("/api/password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ current: curPass, next: newPass }),
-    });
-    const data = await res.json().catch(() => ({}));
-    setBusy(false);
-    if (res.ok) {
-      setNotice({ ok: true, text: "เปลี่ยนรหัสผ่านแล้ว" });
-      setCurPass("");
-      setNewPass("");
-    } else if (res.status === 401) {
-      window.location.assign("/login");
-    } else {
-      setNotice({ ok: false, text: data.error ?? "เปลี่ยนรหัสไม่สำเร็จ" });
+    try {
+      const res = await fetch("/api/password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ current: curPass, next: newPass }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setNotice({ ok: true, text: "เปลี่ยนรหัสผ่านแล้ว" });
+        setCurPass("");
+        setNewPass("");
+      } else if (res.status === 401) {
+        window.location.assign("/login");
+      } else {
+        setNotice({ ok: false, text: data.error ?? "เปลี่ยนรหัสไม่สำเร็จ" });
+      }
+    } catch {
+      setNotice({ ok: false, text: "เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองอีกครั้ง" });
+    } finally {
+      setBusy(false);
     }
   };
 

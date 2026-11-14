@@ -5,6 +5,7 @@ import { useState } from "react";
 export default function LoginForm() {
   const [show, setShow] = useState(false);
   const [error, setError] = useState(false);
+  const [netErr, setNetErr] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -12,18 +13,25 @@ export default function LoginForm() {
     if (busy) return;
     setBusy(true);
     setError(false);
+    setNetErr(false);
     const password = new FormData(e.currentTarget).get("password");
-    const res = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
-    });
-    setBusy(false);
-    if (res.ok) {
-      // hard-nav — client router cache อาจค้าง redirect ของ /dashboard ตอนยังไม่ login
-      window.location.assign("/dashboard");
-    } else {
-      setError(true);
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      if (res.ok) {
+        // hard-nav — client router cache อาจค้าง redirect ของ /dashboard ตอนยังไม่ login
+        window.location.assign("/dashboard");
+        return;
+      }
+      if (res.status === 401) setError(true);
+      else setNetErr(true);
+    } catch {
+      setNetErr(true);
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -32,6 +40,11 @@ export default function LoginForm() {
       {error && (
         <div className="mb-5 rounded-[14px] border border-[#f43f5e]/35 bg-[#f43f5e]/[0.07] px-4 py-3 text-[12.5px] text-[#fda4af]">
           รหัสผ่านไม่ถูกต้อง ลองอีกครั้ง
+        </div>
+      )}
+      {netErr && (
+        <div className="mb-5 rounded-[14px] border border-[#f59e0b]/35 bg-[#f59e0b]/[0.07] px-4 py-3 text-[12.5px] text-[#fcd34d]">
+          เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองอีกครั้ง
         </div>
       )}
 

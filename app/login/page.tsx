@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import LoginForm from "@/components/LoginForm";
+import { isAuthed } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "SECURITY GATE — CRAYWIND",
 };
 
-export default function LoginPage() {
+export const dynamic = "force-dynamic";
+
+export default async function LoginPage() {
+  if (await isAuthed()) redirect("/dashboard");
   return (
     <main className="grid min-h-dvh place-items-center px-5 py-12">
       <div className="grid w-full max-w-[940px] border border-white/15 bg-[#0e0e11]/95 shadow-2xl md:grid-cols-2">

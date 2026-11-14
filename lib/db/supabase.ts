@@ -63,17 +63,13 @@ export async function saveMembers(cfg: SupaCfg, members: Member[]) {
 }
 
 export async function getSetting(cfg: SupaCfg, key: string): Promise<string | null> {
-  try {
-    const res = await fetch(
-      `${endpoint(cfg, SETTINGS_TABLE)}?key=eq.${encodeURIComponent(key)}&select=value`,
-      { headers: headers(cfg), cache: "no-store" }
-    );
-    if (!res.ok) return null;
-    const rows = (await res.json()) as { value: string }[];
-    return rows[0]?.value ?? null;
-  } catch {
-    return null; // settings table อาจยังไม่มี — ถือว่าไม่มีค่า
-  }
+  const res = await fetch(
+    `${endpoint(cfg, SETTINGS_TABLE)}?key=eq.${encodeURIComponent(key)}&select=value`,
+    { headers: headers(cfg), cache: "no-store" }
+  );
+  if (!res.ok) throw new Error(`Supabase getSetting failed: ${res.status}`);
+  const rows = (await res.json()) as { value: string }[];
+  return rows[0]?.value ?? null;
 }
 
 export async function setSetting(cfg: SupaCfg, key: string, value: string) {

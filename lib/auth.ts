@@ -8,7 +8,11 @@ const TTL_MS = 1000 * 60 * 60 * 24 * 7; // 7 days
 const PASSWORD_KEY = "admin_password";
 
 function secret() {
-  return process.env.SESSION_SECRET ?? process.env.ADMIN_PASSWORD ?? "dev-secret";
+  const s = process.env.SESSION_SECRET ?? process.env.ADMIN_PASSWORD;
+  if (s) return s;
+  // production ไม่มี secret = token ปลอมได้ทุกคน → ล้มดังๆ ดีกว่าเปิด admin ฟรี
+  if (process.env.NODE_ENV === "production") throw new Error("SESSION_SECRET is not set");
+  return "dev-secret";
 }
 
 /* ---------- password (scrypt hash stored in DB) ---------- */
@@ -32,13 +36,15 @@ function verifyPassword(password: string, stored: string): boolean {
  * → ย้ายฐานข้อมูลแล้ว login ด้วยรหัสเดิมได้ทันที
  */
 export async function checkPassword(input: string): Promise<boolean> {
+  const envPass = process.env.ADMIN_PASSWORD ?? "admin1234";
   try {
     const stored = await getSetting(PASSWORD_KEY);
     if (stored) return verifyPassword(input, stored);
   } catch {
-    // DB ยังไม่พร้อม — fallback env
+    // DB อ่านไม่ได้ → fallback env แต่ห้ามเขียนทับ ไม่งั้น hash จริงจะโดนรีเซ็ตเงียบๆ
+    return input === envPass;
   }
-  const envPass = process.env.ADMIN_PASSWORD ?? "admin1234";
+  // อ่านได้และไม่มี record จริงๆ → bootstrap เขียน hash ลง DB
   if (input === envPass) {
     setSetting(PASSWORD_KEY, hashPassword(envPass)).catch(() => {});
     return true;
