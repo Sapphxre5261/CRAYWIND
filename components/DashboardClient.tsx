@@ -35,32 +35,39 @@ export default function DashboardClient({
 
   const remove = (i: number) => setList((l) => l.filter((_, j) => j !== i));
 
-  const add = (member: Member) => {
-    setList((l) => [...l, member]);
-    setNotice({ ok: true, text: `เพิ่ม ${member.name} แล้ว — กดบันทึกการเปลี่ยนแปลงเพื่อยืนยัน` });
-  };
-
-  const save = async () => {
-    if (list.some((m) => !m.name.trim())) {
-      setNotice({ ok: false, text: "มีสมาชิกที่ยังไม่ได้ใส่ชื่อ" });
-      return;
-    }
+  const persist = async (members: Member[], okText: string): Promise<boolean> => {
     setSaving(true);
     setNotice(null);
     const res = await fetch("/api/members", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(list),
+      body: JSON.stringify(members),
     });
     setSaving(false);
     if (res.ok) {
-      setNotice({ ok: true, text: "บันทึกแล้ว — roster อัปเดตเรียบร้อย" });
+      setNotice({ ok: true, text: okText });
       router.refresh();
-    } else if (res.status === 401) {
-      router.push("/login");
-    } else {
-      setNotice({ ok: false, text: "บันทึกไม่สำเร็จ ลองอีกครั้ง" });
+      return true;
     }
+    if (res.status === 401) router.push("/login");
+    else setNotice({ ok: false, text: "บันทึกไม่สำเร็จ ลองอีกครั้ง" });
+    return false;
+  };
+
+  const add = async (member: Member) => {
+    const prev = list;
+    setList([...prev, member]);
+    if (!(await persist([...prev, member], `เพิ่ม ${member.name} แล้ว`))) {
+      setList(prev);
+    }
+  };
+
+  const save = () => {
+    if (list.some((m) => !m.name.trim())) {
+      setNotice({ ok: false, text: "มีสมาชิกที่ยังไม่ได้ใส่ชื่อ" });
+      return;
+    }
+    void persist(list, "บันทึกแล้ว — roster อัปเดตเรียบร้อย");
   };
 
   const logout = async () => {

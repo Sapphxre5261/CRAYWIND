@@ -116,7 +116,7 @@ export default function AddMemberModal({ onAdd }: { onAdd: (member: Member) => v
               />
             </div>
             <p id="add-member-description" className="text-xs leading-relaxed text-mute">
-              เพิ่มสมาชิกลงรายการก่อน แล้วกด “บันทึกการเปลี่ยนแปลง” เพื่อแสดงบนหน้าเว็บ
+              กด “เพิ่มลงรายการ” แล้วระบบจะบันทึกลงฐานข้อมูลทันที
             </p>
             <div className="flex justify-end gap-3 border-t border-white/10 pt-5">
               <button type="button" onClick={() => dialogRef.current?.close()} className="cursor-pointer border border-white/20 px-5 py-3 text-sm text-mute transition-colors hover:border-white/40 hover:text-white">ยกเลิก</button>
