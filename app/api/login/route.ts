@@ -10,6 +10,7 @@ export async function POST(req: Request) {
   res.cookies.set(SESSION_COOKIE, createToken(), {
     httpOnly: true,
     sameSite: "lax",
+    secure: new URL(req.url).protocol === "https:",
     path: "/",
     maxAge: 60 * 60 * 24 * 7,
   });

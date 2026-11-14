@@ -11,7 +11,7 @@ const SETTINGS_TABLE = "settings";
 function endpoint(cfg: SupaCfg, table = cfg.table) {
   if (!cfg.url || !cfg.key) {
     throw new Error(
-      "Supabase config missing — กรอก url + service_role_key ใน config.ini หรือ env SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY"
+      "Supabase config missing — ตั้ง env SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY"
     );
   }
   return `${cfg.url.replace(/\/$/, "")}/rest/v1/${table}`;
@@ -37,26 +37,29 @@ export async function getMembers(cfg: SupaCfg): Promise<Member[]> {
 }
 
 export async function saveMembers(cfg: SupaCfg, members: Member[]) {
-  // wipe + re-insert preserves the editor's ordering via pos
-  const del = await fetch(`${endpoint(cfg)}?id=gte.0`, {
-    method: "DELETE",
-    headers: headers(cfg),
-  });
-  if (!del.ok) throw new Error(`Supabase delete failed: ${del.status} ${await del.text()}`);
+  // insert ก่อนแล้วค่อยลบแถวเก่า — ถ้าล้มกลางทางข้อมูลเดิมไม่หาย (retry แล้วหายเอง)
+  let newIds: number[] = [];
+  if (members.length > 0) {
+    const rows = members.map((m, i) => ({
+      name: m.name.trim(),
+      rank: m.rank,
+      facebook: m.facebook ?? "",
+      pos: i,
+    }));
+    const ins = await fetch(endpoint(cfg), {
+      method: "POST",
+      headers: headers(cfg, { Prefer: "return=representation" }),
+      body: JSON.stringify(rows),
+    });
+    if (!ins.ok) throw new Error(`Supabase insert failed: ${ins.status} ${await ins.text()}`);
+    newIds = ((await ins.json()) as { id: number }[]).map((r) => r.id);
+  }
 
-  if (members.length === 0) return;
-  const rows = members.map((m, i) => ({
-    name: m.name.trim(),
-    rank: m.rank,
-    facebook: m.facebook ?? "",
-    pos: i,
-  }));
-  const ins = await fetch(endpoint(cfg), {
-    method: "POST",
-    headers: headers(cfg, { Prefer: "return=minimal" }),
-    body: JSON.stringify(rows),
-  });
-  if (!ins.ok) throw new Error(`Supabase insert failed: ${ins.status} ${await ins.text()}`);
+  const del = await fetch(
+    `${endpoint(cfg)}?id=${newIds.length ? `not.in.(${newIds.join(",")})` : "gte.0"}`,
+    { method: "DELETE", headers: headers(cfg) }
+  );
+  if (!del.ok) throw new Error(`Supabase delete failed: ${del.status} ${await del.text()}`);
 }
 
 export async function getSetting(cfg: SupaCfg, key: string): Promise<string | null> {

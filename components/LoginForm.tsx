@@ -1,10 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function LoginForm() {
-  const router = useRouter();
   const [show, setShow] = useState(false);
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -22,7 +20,8 @@ export default function LoginForm() {
     });
     setBusy(false);
     if (res.ok) {
-      router.push("/dashboard");
+      // hard-nav — client router cache อาจค้าง redirect ของ /dashboard ตอนยังไม่ login
+      window.location.assign("/dashboard");
     } else {
       setError(true);
     }

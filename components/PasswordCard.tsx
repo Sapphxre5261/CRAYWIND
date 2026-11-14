@@ -1,10 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function PasswordCard() {
-  const router = useRouter();
   const [curPass, setCurPass] = useState("");
   const [newPass, setNewPass] = useState("");
   const [busy, setBusy] = useState(false);
@@ -25,7 +23,7 @@ export default function PasswordCard() {
       setCurPass("");
       setNewPass("");
     } else if (res.status === 401) {
-      router.push("/login");
+      window.location.assign("/login");
     } else {
       setNotice({ ok: false, text: data.error ?? "เปลี่ยนรหัสไม่สำเร็จ" });
     }

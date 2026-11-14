@@ -33,24 +33,36 @@ export default function DashboardClient({
   const update = (i: number, patch: Partial<Member>) =>
     setList((l) => l.map((m, j) => (j === i ? { ...m, ...patch } : m)));
 
-  const remove = (i: number) => setList((l) => l.filter((_, j) => j !== i));
+  const remove = async (i: number) => {
+    const prev = list;
+    const next = prev.filter((_, j) => j !== i);
+    setList(next);
+    if (!(await persist(next, `ลบ ${prev[i].name} แล้ว`))) {
+      setList(prev);
+    }
+  };
 
   const persist = async (members: Member[], okText: string): Promise<boolean> => {
     setSaving(true);
     setNotice(null);
-    const res = await fetch("/api/members", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(members),
-    });
-    setSaving(false);
-    if (res.ok) {
-      setNotice({ ok: true, text: okText });
-      router.refresh();
-      return true;
+    try {
+      const res = await fetch("/api/members", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(members),
+      });
+      if (res.ok) {
+        setNotice({ ok: true, text: okText });
+        router.refresh();
+        return true;
+      }
+      if (res.status === 401) window.location.assign("/login");
+      else setNotice({ ok: false, text: "บันทึกไม่สำเร็จ ลองอีกครั้ง" });
+    } catch {
+      setNotice({ ok: false, text: "เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองอีกครั้ง" });
+    } finally {
+      setSaving(false);
     }
-    if (res.status === 401) router.push("/login");
-    else setNotice({ ok: false, text: "บันทึกไม่สำเร็จ ลองอีกครั้ง" });
     return false;
   };
 
@@ -71,9 +83,8 @@ export default function DashboardClient({
   };
 
   const logout = async () => {
-    await fetch("/api/logout", { method: "POST" });
-    router.push("/login");
-    router.refresh();
+    await fetch("/api/logout", { method: "POST" }).catch(() => {});
+    window.location.assign("/login");
   };
 
   const counts = useMemo(() => {
